@@ -2,6 +2,21 @@
 
 A Model Context Protocol (MCP) server for saving, managing, and loading AI conversation dialogs.
 
+> 💡 **Save your conversations and give AI context from previous sessions!**
+
+This MCP server allows you to persist conversation history locally, search through past discussions, and load context into new AI sessions. Perfect for maintaining continuity across multiple work sessions or building a knowledge base of important conversations.
+
+## Quick Start
+
+1. **Configure** the server in `.cursor/mcp.json` (see [Configuration](#configuration))
+2. **Restart** Cursor to load the MCP server
+3. **Start using** the dialog tools in your AI conversations:
+   - "Save this conversation"
+   - "Load my last dialog"
+   - "Search my dialogs for Python tutorials"
+
+For more detailed examples, see [DIALOG_MANAGER_README.md](DIALOG_MANAGER_README.md).
+
 ## Features
 
 ### Save Conversations
@@ -47,82 +62,70 @@ Add to your MCP settings file (`.cursor/mcp.json`):
 {
   "mcpServers": {
     "dialog-manager": {
-      "command": "/path/to/ipapi-mcp-server/devenv/bin/python",
-      "args": ["/path/to/ipapi-mcp-server/dialog_manager.py"]
+      "command": "/Users/zhongwu/Documents/GitHub/Jasper/MCP/Conversation loader/devenv/bin/python",
+      "args": [
+        "/Users/zhongwu/Documents/GitHub/Jasper/MCP/Conversation loader/dialog_manager.py"
+      ]
     }
   }
 }
 ```
 
-### Environment Variables
+**Note**: Replace the paths above with your actual installation paths.
 
-Copy the `env.template` file to `.env` and customize as needed:
+### Storage Location
 
-```bash
-cp env.template .env
+Dialogs are automatically saved to:
+```
+~/Documents/saved_dialogs/
 ```
 
-Key configuration options:
+This directory is created automatically when you first use the server. You can check storage info at any time using the `get_storage_info()` tool.
 
-- **MCP_SERVER_NAME**: Server display name
-- **MCP_LOG_LEVEL**: Logging verbosity (DEBUG, INFO, WARNING, ERROR)
-- **DIALOG_STORAGE_PATH**: Where dialogs are saved (default: ~/Documents/saved_dialogs/)
-- **MAX_DIALOGS_IN_LIST**: Maximum number of dialogs to return in list operations
+**After configuring**: Restart Cursor for the changes to take effect.
 
 ## Usage
 
-### Running the Server
+### Running via Cursor
+
+Once configured in `mcp.json`, Cursor will automatically start the server when needed. You can use the tools directly from Cursor's AI interface.
+
+### Running Standalone (for testing)
 
 ```bash
+cd "/Users/zhongwu/Documents/GitHub/Jasper/MCP/Conversation loader"
+source devenv/bin/activate
 python dialog_manager.py
 ```
 
 ### Available Tools
 
-#### 1. save_dialog(content, title, tags, metadata)
-Save a dialog/conversation with optional metadata.
+**15 tools organized into 5 categories:**
 
-#### 2. save_current_context(messages, title, tags)
-Save the current conversation context as structured messages.
+#### Saving (3 tools)
+- `save_dialog(content, title, tags, metadata)` - Save with full metadata
+- `save_current_context(messages, title, tags)` - Save structured conversation
+- `quick_save(text)` - Quick save without extras
 
-#### 3. quick_save(text)
-Quick save text without extra parameters.
+#### Loading (3 tools)
+- `load_dialog(dialog_id)` - Load specific dialog
+- `load_last_dialog()` - Load most recent
+- `load_dialog_content(dialog_id)` - Get content for AI to read
 
-#### 4. load_dialog(dialog_id)
-Load a specific dialog by ID.
+#### Browsing (4 tools)
+- `list_dialogs(limit, tags, search)` - List with filtering
+- `search_dialogs(query, limit)` - Search by keyword
+- `get_dialogs_by_tag(tag)` - Filter by tag
+- `get_recent_dialogs(count)` - Get recent dialogs
 
-#### 5. load_last_dialog()
-Load the most recently saved dialog.
+#### Managing (3 tools)
+- `delete_dialog(dialog_id)` - Delete a dialog
+- `update_dialog_tags(dialog_id, tags)` - Update tags
+- `rename_dialog(dialog_id, new_title)` - Rename dialog
 
-#### 6. load_dialog_content(dialog_id)
-Load just the content of a dialog (for AI to read).
-
-#### 7. list_dialogs(limit, tags, search)
-List saved dialogs with optional filtering.
-
-#### 8. search_dialogs(query, limit)
-Search through saved dialogs.
-
-#### 9. get_dialogs_by_tag(tag)
-Get all dialogs with a specific tag.
-
-#### 10. get_recent_dialogs(count)
-Get the most recent dialogs.
-
-#### 11. delete_dialog(dialog_id)
-Delete a saved dialog.
-
-#### 12. update_dialog_tags(dialog_id, tags)
-Update tags for a dialog.
-
-#### 13. rename_dialog(dialog_id, new_title)
-Rename a dialog.
-
-#### 14. export_dialog_as_markdown(dialog_id, output_path)
-Export a dialog as a Markdown file.
-
-#### 15. get_storage_info()
-Get information about dialog storage.
+#### Exporting (2 tools)
+- `export_dialog_as_markdown(dialog_id, output_path)` - Export to Markdown
+- `get_storage_info()` - Get storage statistics
 
 ## Examples
 
@@ -182,6 +185,42 @@ Dialogs are stored in `~/Documents/saved_dialogs/` by default. Each dialog is sa
 - Title and tags
 - Full content and messages
 - Metadata (timestamp, word count, etc.)
+
+## MCP Resources
+
+The server provides MCP resources for accessing dialogs:
+
+- `dialog://{dialog_id}` - Access a specific dialog by ID
+- `dialogs://recent` - Access the 10 most recent dialogs
+
+Resources allow other MCP clients to retrieve dialog content directly.
+
+## Troubleshooting
+
+### Server not appearing in Cursor
+
+1. Check that the paths in `mcp.json` are correct and absolute
+2. Ensure the Python virtual environment exists at the specified path
+3. Restart Cursor completely
+4. Check Cursor's MCP logs for errors
+
+### Permission errors
+
+Make sure the `~/Documents/saved_dialogs/` directory is writable. The server will try to create it automatically on first use.
+
+### Dependencies missing
+
+Activate the virtual environment and install dependencies:
+```bash
+cd "/Users/zhongwu/Documents/GitHub/Jasper/MCP/Conversation loader"
+source devenv/bin/activate
+pip install mcp
+```
+
+## Additional Documentation
+
+- **[DIALOG_MANAGER_README.md](DIALOG_MANAGER_README.md)** - Comprehensive guide with detailed examples and use cases
+- **[dialog_manager.py](dialog_manager.py)** - Source code with inline documentation
 
 ## License
 
