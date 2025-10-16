@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "dialog-manager": {
+      "command": "/Users/zhongwu/Documents/GitHub/Jasper/MCP/Conversation loader/devenv/bin/python",
+      "args": [
+        "/Users/zhongwu/Documents/GitHub/Jasper/MCP/Conversation loader/dialog_manager.py"
+      ]
+    }
+  }
+}
+
